@@ -9,5 +9,6 @@ public interface UserService {
 
     void performRegistration(UserDTO userDTO) throws UserAlreadyExistsException;
 
+    void performAuthentication(UserDTO userDTO) throws UserNotFoundException;
     UserDTO getUserByUsername(String username) throws UserNotFoundException;
 }

@@ -6,7 +6,9 @@ import ge.vtt.um.exception.UserNotFoundException;
 import ge.vtt.um.model.transfer.UserDTO;
 import ge.vtt.um.repository.UserRepository;
 import ge.vtt.um.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -14,14 +16,12 @@ import javax.transaction.Transactional;
 @Service
 @Primary
 @Transactional
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
+    private final PasswordEncoder passwordEncoder;
     @Override
     public void performRegistration(UserDTO userDTO) throws UserAlreadyExistsException {
         if (userRepository.existsByUsername(userDTO.getUsername())) {
@@ -32,9 +32,17 @@ public class UserServiceImpl implements UserService {
         userEntity.setFirstname(userDTO.getFirstname());
         userEntity.setLastname(userDTO.getLastname());
         userEntity.setEmail(userDTO.getEmail());
-        userEntity.setPassword(userDTO.getPassword());
+        userEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userRepository.save(userEntity);
         userRepository.flush();
+    }
+
+    @Override
+    public void performAuthentication(UserDTO userDTO) throws UserNotFoundException {
+        if (!userRepository.existsByUsername(userDTO.getUsername())) {
+            throw new UserNotFoundException("User with provided details does not exist!");
+        }
+
     }
 
     @Override

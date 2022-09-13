@@ -37,6 +37,17 @@ public class UserController {
                 .build()));
     }
 
+    @PutMapping("/authenticate")
+    public ResponseEntity<GeneralResponse> authenticate(@Valid @RequestBody UserDTO userDTO) throws UserNotFoundException {
+        log.info("Request body : {}", userDTO);
+        userService.performAuthentication(userDTO);
+
+        return ResponseEntity.of(Optional.of(GeneralResponse.builder()
+                .message("Registration completed successfully!")
+                .status(HttpStatus.CREATED.value())
+                .build()));
+    }
+
     @GetMapping("/getBy/username/{username}")
     public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) throws UserNotFoundException {
         log.info("Request param : {}", username);
