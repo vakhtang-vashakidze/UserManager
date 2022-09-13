@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setEmail(userDTO.getEmail());
         userEntity.setPassword(userDTO.getPassword());
         userRepository.save(userEntity);
+        userRepository.flush();
     }
 
     @Override
