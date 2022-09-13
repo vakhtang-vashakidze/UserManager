@@ -1,4 +1,4 @@
-package ge.vtt.um.model;
+package ge.vtt.um.model.transfer;
 
 import lombok.Data;
 

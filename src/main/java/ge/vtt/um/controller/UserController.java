@@ -1,6 +1,6 @@
 package ge.vtt.um.controller;
 
-import ge.vtt.um.model.UserDTO;
+import ge.vtt.um.model.transfer.UserDTO;
 import ge.vtt.um.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

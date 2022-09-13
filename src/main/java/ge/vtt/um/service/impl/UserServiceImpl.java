@@ -1,14 +1,17 @@
 package ge.vtt.um.service.impl;
 
 import ge.vtt.um.entity.UserEntity;
-import ge.vtt.um.model.UserDTO;
+import ge.vtt.um.model.transfer.UserDTO;
 import ge.vtt.um.repository.UserRepository;
 import ge.vtt.um.service.UserService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 @Primary
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;

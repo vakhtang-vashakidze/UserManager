@@ -1,7 +1,7 @@
 package ge.vtt.um.service;
 
 
-import ge.vtt.um.model.UserDTO;
+import ge.vtt.um.model.transfer.UserDTO;
 
 public interface UserService {
 
