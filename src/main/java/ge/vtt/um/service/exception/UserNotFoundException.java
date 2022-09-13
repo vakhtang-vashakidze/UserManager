@@ -1,4 +1,4 @@
-package ge.vtt.um.exception;
+package ge.vtt.um.service.exception;
 
 public class UserNotFoundException extends Exception {
 

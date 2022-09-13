@@ -1,7 +1,7 @@
 package ge.vtt.um.controller;
 
-import ge.vtt.um.exception.UserAlreadyExistsException;
-import ge.vtt.um.exception.UserNotFoundException;
+import ge.vtt.um.service.exception.UserAlreadyExistsException;
+import ge.vtt.um.service.exception.UserNotFoundException;
 import ge.vtt.um.model.transfer.AuthenticationResponse;
 import ge.vtt.um.model.transfer.GeneralResponse;
 import ge.vtt.um.model.transfer.UserDTO;

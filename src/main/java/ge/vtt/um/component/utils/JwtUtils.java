@@ -1,4 +1,4 @@
-package ge.vtt.um.component;
+package ge.vtt.um.component.utils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;

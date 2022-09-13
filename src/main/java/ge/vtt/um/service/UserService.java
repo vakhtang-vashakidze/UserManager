@@ -1,8 +1,8 @@
 package ge.vtt.um.service;
 
 
-import ge.vtt.um.exception.UserAlreadyExistsException;
-import ge.vtt.um.exception.UserNotFoundException;
+import ge.vtt.um.service.exception.UserAlreadyExistsException;
+import ge.vtt.um.service.exception.UserNotFoundException;
 import ge.vtt.um.model.transfer.UserDTO;
 
 import java.util.Map;

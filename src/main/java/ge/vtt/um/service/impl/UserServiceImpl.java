@@ -1,9 +1,9 @@
 package ge.vtt.um.service.impl;
 
-import ge.vtt.um.component.JwtUtils;
+import ge.vtt.um.component.utils.JwtUtils;
 import ge.vtt.um.entity.UserEntity;
-import ge.vtt.um.exception.UserAlreadyExistsException;
-import ge.vtt.um.exception.UserNotFoundException;
+import ge.vtt.um.service.exception.UserAlreadyExistsException;
+import ge.vtt.um.service.exception.UserNotFoundException;
 import ge.vtt.um.model.transfer.UserDTO;
 import ge.vtt.um.repository.UserRepository;
 import ge.vtt.um.service.UserService;
