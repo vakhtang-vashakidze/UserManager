@@ -1,6 +1,7 @@
 package ge.vtt.um.controller.advice;
 
 import ge.vtt.um.exception.UserAlreadyExistsException;
+import ge.vtt.um.exception.UserNotFoundException;
 import ge.vtt.um.model.transfer.GeneralResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,8 +23,8 @@ public class MainAdvice {
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public GeneralResponse handleUsernameNotFoundException(UsernameNotFoundException exception) {
+    @ExceptionHandler({UsernameNotFoundException.class, UserNotFoundException.class})
+    public GeneralResponse handleUserNotFoundException(Exception exception) {
         return GeneralResponse.builder()
                 .message(exception.getMessage())
                 .status(HttpStatus.NOT_FOUND.value())

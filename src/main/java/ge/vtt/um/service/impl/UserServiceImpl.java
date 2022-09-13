@@ -1,5 +1,6 @@
 package ge.vtt.um.service.impl;
 
+import ge.vtt.um.component.JwtUtils;
 import ge.vtt.um.entity.UserEntity;
 import ge.vtt.um.exception.UserAlreadyExistsException;
 import ge.vtt.um.exception.UserNotFoundException;
@@ -8,10 +9,14 @@ import ge.vtt.um.repository.UserRepository;
 import ge.vtt.um.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Map;
 
 @Service
 @Primary
@@ -22,6 +27,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtUtils jwtUtils;
+
     @Override
     public void performRegistration(UserDTO userDTO) throws UserAlreadyExistsException {
         if (userRepository.existsByUsername(userDTO.getUsername())) {
@@ -38,25 +48,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void performAuthentication(UserDTO userDTO) throws UserNotFoundException {
+    public Map<String, String> performAuthentication(UserDTO userDTO) throws UserNotFoundException {
         if (!userRepository.existsByUsername(userDTO.getUsername())) {
             throw new UserNotFoundException("User with provided details does not exist!");
         }
 
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword());
+        Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+        return jwtUtils.generateJWT(authentication);
     }
 
-    @Override
-    public UserDTO getUserByUsername(String username) throws UserNotFoundException {
-        if (!userRepository.existsByUsername(username)) {
-            throw new UserNotFoundException("User with provided details does not exist!");
-        }
-        UserEntity userEntity = userRepository.getUserEntityByUsername(username);
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(userEntity.getUsername());
-        userDTO.setFirstname(userEntity.getFirstname());
-        userDTO.setLastname(userEntity.getLastname());
-        userDTO.setEmail(userEntity.getEmail());
-        userDTO.setPassword(userEntity.getPassword());
-        return userDTO;
-    }
 }

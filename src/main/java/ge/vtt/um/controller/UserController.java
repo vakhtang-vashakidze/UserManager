@@ -2,6 +2,7 @@ package ge.vtt.um.controller;
 
 import ge.vtt.um.exception.UserAlreadyExistsException;
 import ge.vtt.um.exception.UserNotFoundException;
+import ge.vtt.um.model.transfer.AuthenticationResponse;
 import ge.vtt.um.model.transfer.GeneralResponse;
 import ge.vtt.um.model.transfer.UserDTO;
 import ge.vtt.um.service.UserService;
@@ -12,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -37,20 +39,16 @@ public class UserController {
                 .build()));
     }
 
-    @PutMapping("/authenticate")
+    @PostMapping("/authenticate")
     public ResponseEntity<GeneralResponse> authenticate(@Valid @RequestBody UserDTO userDTO) throws UserNotFoundException {
         log.info("Request body : {}", userDTO);
-        userService.performAuthentication(userDTO);
+        Map<String, String> tokens = userService.performAuthentication(userDTO);
 
-        return ResponseEntity.of(Optional.of(GeneralResponse.builder()
+        return ResponseEntity.of(Optional.of(AuthenticationResponse.builder()
+                .accessToken(tokens.get("accessToken"))
+                .refreshToken(tokens.get("refreshToken"))
                 .message("Registration completed successfully!")
                 .status(HttpStatus.CREATED.value())
                 .build()));
-    }
-
-    @GetMapping("/getBy/username/{username}")
-    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) throws UserNotFoundException {
-        log.info("Request param : {}", username);
-        return ResponseEntity.ok(userService.getUserByUsername(username));
     }
 }
