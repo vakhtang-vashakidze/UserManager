@@ -2,14 +2,17 @@ package ge.vtt.um.controller;
 
 import ge.vtt.um.exception.UserAlreadyExistsException;
 import ge.vtt.um.exception.UserNotFoundException;
+import ge.vtt.um.model.transfer.GeneralResponse;
 import ge.vtt.um.model.transfer.UserDTO;
 import ge.vtt.um.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -24,10 +27,14 @@ public class UserController {
     }
 
     @PutMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody UserDTO userDTO) throws UserAlreadyExistsException {
+    public ResponseEntity<GeneralResponse> register(@Valid @RequestBody UserDTO userDTO) throws UserAlreadyExistsException {
         log.info("Request body : {}", userDTO);
         userService.performRegistration(userDTO);
-        return ResponseEntity.ok("registered!");
+
+        return ResponseEntity.of(Optional.of(GeneralResponse.builder()
+                .message("Registration completed successfully!")
+                .status(HttpStatus.CREATED.value())
+                .build()));
     }
 
     @GetMapping("/getBy/username/{username}")
