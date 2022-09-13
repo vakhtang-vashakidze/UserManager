@@ -1,5 +1,7 @@
 package ge.vtt.um.controller;
 
+import ge.vtt.um.exception.UserAlreadyExistsException;
+import ge.vtt.um.exception.UserNotFoundException;
 import ge.vtt.um.model.transfer.UserDTO;
 import ge.vtt.um.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +24,14 @@ public class UserController {
     }
 
     @PutMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<String> register(@Valid @RequestBody UserDTO userDTO) throws UserAlreadyExistsException {
         log.info("Request body : {}", userDTO);
         userService.performRegistration(userDTO);
         return ResponseEntity.ok("registered!");
     }
 
     @GetMapping("/getBy/username/{username}")
-    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
+    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) throws UserNotFoundException {
         log.info("Request param : {}", username);
         return ResponseEntity.ok(userService.getUserByUsername(username));
     }
