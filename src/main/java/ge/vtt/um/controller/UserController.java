@@ -6,6 +6,7 @@ import ge.vtt.um.model.transfer.AuthenticationResponse;
 import ge.vtt.um.model.transfer.GeneralResponse;
 import ge.vtt.um.model.transfer.UserDTO;
 import ge.vtt.um.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +20,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/users")
 @Validated
+@RequiredArgsConstructor
 @Slf4j
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PutMapping("/register")
     public ResponseEntity<GeneralResponse> register(@Valid @RequestBody UserDTO userDTO) throws UserAlreadyExistsException {
