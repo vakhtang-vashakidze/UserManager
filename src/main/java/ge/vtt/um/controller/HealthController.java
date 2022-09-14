@@ -1,6 +1,6 @@
 package ge.vtt.um.controller;
 
-import ge.vtt.um.model.transfer.GeneralResponse;
+import ge.vtt.um.model.response.GeneralResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

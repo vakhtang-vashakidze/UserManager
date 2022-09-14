@@ -1,4 +1,4 @@
-package ge.vtt.um.model.transfer;
+package ge.vtt.um.model.response;
 
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;

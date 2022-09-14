@@ -2,7 +2,7 @@ package ge.vtt.um.controller.advice;
 
 import ge.vtt.um.service.exception.UserAlreadyExistsException;
 import ge.vtt.um.service.exception.UserNotFoundException;
-import ge.vtt.um.model.transfer.GeneralResponse;
+import ge.vtt.um.model.response.GeneralResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
