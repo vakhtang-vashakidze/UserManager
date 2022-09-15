@@ -15,7 +15,7 @@ public interface UserService {
 
     Map<String, String> performAuthentication(GeneralRequest request) throws UserNotFoundException;
 
-    void startPasswordResetProcess(ResetPasswordPromptRequest request);
+    void startPasswordResetProcess(ResetPasswordPromptRequest request) throws UserNotFoundException;
 
     void finalizePasswordResetProcess(ResetPasswordVerifyRequest request);
 }

@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping("/password/reset/prompt")
-    public ResponseEntity<GeneralResponse> resetPasswordPrompt(@Valid @RequestBody ResetPasswordPromptRequest request){
+    public ResponseEntity<GeneralResponse> resetPasswordPrompt(@Valid @RequestBody ResetPasswordPromptRequest request) throws UserNotFoundException {
         log.info("Request body : {}", request);
         userService.startPasswordResetProcess(request);
 

@@ -10,7 +10,11 @@ import ge.vtt.um.service.UserService;
 import ge.vtt.um.service.exception.UserAlreadyExistsException;
 import ge.vtt.um.service.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Primary
@@ -33,6 +38,10 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
 
     private final JwtUtils jwtUtils;
+
+    private final JavaMailSenderImpl javaMailSender;
+
+    private final Environment environment;
 
     @Override
     public void performRegistration(GeneralRequest request) throws UserAlreadyExistsException {
@@ -61,8 +70,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void startPasswordResetProcess(ResetPasswordPromptRequest request) {
-
+    public void startPasswordResetProcess(ResetPasswordPromptRequest request) throws UserNotFoundException {
+        if (!userRepository.existsByUsername(request.getUsername())) {
+            throw new UserNotFoundException("User with provided details does not exist!");
+        }
+        UserEntity userEntity = userRepository.getUserEntityByUsername(request.getUsername());
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setFrom(javaMailSender.getUsername());
+        mailMessage.setTo(userEntity.getEmail());
+        mailMessage.setText(String.format(environment.getProperty("template.password.reset.prompt"), UUID.randomUUID().toString().substring(0, 5)));
+        mailMessage.setSubject("Reset password");
+        javaMailSender.send(mailMessage);
     }
 
     @Override
