@@ -8,6 +8,8 @@ import ge.vtt.um.model.response.AuthenticationResponse;
 import ge.vtt.um.model.response.GeneralResponse;
 import ge.vtt.um.model.request.GeneralRequest;
 import ge.vtt.um.service.UserService;
+import ge.vtt.um.service.exception.UserPasswordIsNotMatchedException;
+import ge.vtt.um.service.exception.VerificationCodeIsNotMatchedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -40,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<GeneralResponse> authenticate(@Valid @RequestBody GeneralRequest request) throws UserNotFoundException {
+    public ResponseEntity<GeneralResponse> authenticate(@Valid @RequestBody GeneralRequest request) throws UserNotFoundException, UserPasswordIsNotMatchedException {
         log.info("Request body : {}", request);
         Map<String, String> tokens = userService.performAuthentication(request);
 
@@ -64,13 +66,13 @@ public class UserController {
     }
 
     @PostMapping("/password/reset/verify")
-    public ResponseEntity<GeneralResponse> resetPasswordVerification(@Valid @RequestBody ResetPasswordVerifyRequest request){
+    public ResponseEntity<GeneralResponse> resetPasswordVerification(@Valid @RequestBody ResetPasswordVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException {
         log.info("Request body : {}", request);
         userService.finalizePasswordResetProcess(request);
 
         return ResponseEntity.of(Optional.of(GeneralResponse.builder()
                 .message("Password reset completed successfully!")
-                .status(HttpStatus.CREATED.value())
+                .status(HttpStatus.OK.value())
                 .build()));
     }
 }

@@ -37,6 +37,7 @@ public class UMSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/users/register").permitAll();
         http.authorizeRequests().antMatchers("/users/authenticate").permitAll();
         http.authorizeRequests().antMatchers("/users/password/reset/prompt").permitAll();
+        http.authorizeRequests().antMatchers("/users/password/reset/verify").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilterBefore(new UMAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
     }

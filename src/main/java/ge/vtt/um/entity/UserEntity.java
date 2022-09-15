@@ -2,12 +2,10 @@ package ge.vtt.um.entity;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Entity
 @Data
@@ -28,4 +26,7 @@ public class UserEntity {
     private String email;
     @NotBlank
     private String password;
+
+    @OneToMany
+    private List<PasswordResetEntity> passwordResetEntities;
 }
