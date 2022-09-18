@@ -86,8 +86,8 @@ public class UserServiceImpl implements UserService {
         }
         UserEntity userEntity = userRepository.getUserEntityByUsername(request.getUsername());
         Optional<UserVerificationEntity> userVerificationEntity = userVerificationRepository.getAllByUser(userEntity).stream().max(Comparator.comparing(UserVerificationEntity::getCreationDate));
-        userVerificationEntity.orElseThrow(() -> new UserVerificationEntityNotFoundException(USER_VERIFICATION_ENTITY_NOT_FOUND.getMessage()));
-        if (!passwordEncoder.matches(request.getVerificationCode(), userVerificationEntity.get().getEncryptedCode())) {
+
+        if (!passwordEncoder.matches(request.getVerificationCode(), userVerificationEntity.orElseThrow(() -> new UserVerificationEntityNotFoundException(USER_VERIFICATION_ENTITY_NOT_FOUND.getMessage())).getEncryptedCode())) {
             throw new VerificationCodeIsNotMatchedException(VERIFICATION_CODE_IS_NOT_MATCHED.getMessage());
         }
 
@@ -137,8 +137,8 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = userRepository.getUserEntityByUsername(request.getUsername());
         Optional<PasswordResetEntity> passwordResetEntity = passwordResetRepository.getAllByUser(userEntity).stream().max(Comparator.comparing(PasswordResetEntity::getCreationDate));
-        passwordResetEntity.orElseThrow(() -> new PasswordResetEntityNotFoundException(PASSWORD_RESET_ENTITY_NOT_FOUND.getMessage()));
-        if (!passwordEncoder.matches(request.getVerificationCode(), passwordResetEntity.get().getEncryptedCode())) {
+
+        if (!passwordEncoder.matches(request.getVerificationCode(), passwordResetEntity.orElseThrow(() -> new PasswordResetEntityNotFoundException(PASSWORD_RESET_ENTITY_NOT_FOUND.getMessage())).getEncryptedCode())) {
             throw new VerificationCodeIsNotMatchedException(VERIFICATION_CODE_IS_NOT_MATCHED.getMessage());
         }
 
