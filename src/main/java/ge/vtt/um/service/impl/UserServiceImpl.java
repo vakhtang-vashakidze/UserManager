@@ -11,16 +11,11 @@ import ge.vtt.um.model.request.ResetPasswordVerifyRequest;
 import ge.vtt.um.repository.PasswordResetRepository;
 import ge.vtt.um.repository.UserRepository;
 import ge.vtt.um.repository.UserVerificationRepository;
+import ge.vtt.um.service.UMMailSender;
 import ge.vtt.um.service.UserService;
-import ge.vtt.um.service.exception.UserAlreadyExistsException;
-import ge.vtt.um.service.exception.UserNotFoundException;
-import ge.vtt.um.service.exception.UserPasswordIsNotMatchedException;
-import ge.vtt.um.service.exception.VerificationCodeIsNotMatchedException;
+import ge.vtt.um.service.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.env.Environment;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,7 +26,10 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+
+import static ge.vtt.um.service.exception.ExceptionMessages.*;
 
 @Service
 @Primary
@@ -51,14 +49,12 @@ public class UserServiceImpl implements UserService {
 
     private final JwtUtils jwtUtils;
 
-    private final JavaMailSenderImpl javaMailSender;
-
-    private final Environment environment;
+    private final UMMailSender mailSender;
 
     @Override
     public void performRegistration(GeneralRequest request) throws UserAlreadyExistsException {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new UserAlreadyExistsException("User already exists!");
+            throw new UserAlreadyExistsException(USER_ALREADY_EXISTS.getMessage());
         }
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername(request.getUsername());
@@ -80,23 +76,19 @@ public class UserServiceImpl implements UserService {
         userVerificationRepository.save(userVerificationEntity);
         userVerificationRepository.flush();
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setFrom(javaMailSender.getUsername());
-        mailMessage.setTo(userEntity.getEmail());
-        mailMessage.setText(String.format(environment.getProperty("template.user.register.verification"), verificationCode));
-        mailMessage.setSubject("User verification");
-        javaMailSender.send(mailMessage);
+        mailSender.sendRegisterVerificationMail(userEntity.getEmail(), verificationCode);
     }
 
     @Override
-    public void performRegisterVerification(RegisterVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException {
+    public void performRegisterVerification(RegisterVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException, UserVerificationEntityNotFoundException {
         if (!userRepository.existsByUsername(request.getUsername())) {
-            throw new UserNotFoundException("User with provided details does not exist!");
+            throw new UserNotFoundException(USER_NOT_FOUND.getMessage());
         }
         UserEntity userEntity = userRepository.getUserEntityByUsername(request.getUsername());
-        UserVerificationEntity userVerificationEntity = userVerificationRepository.getAllByUser(userEntity).stream().max(Comparator.comparing(UserVerificationEntity::getCreationDate)).get();
-        if (!passwordEncoder.matches(request.getVerificationCode(), userVerificationEntity.getEncryptedCode())) {
-            throw new VerificationCodeIsNotMatchedException("Provided verification code is not matched!");
+        Optional<UserVerificationEntity> userVerificationEntity = userVerificationRepository.getAllByUser(userEntity).stream().max(Comparator.comparing(UserVerificationEntity::getCreationDate));
+        userVerificationEntity.orElseThrow(() -> new UserVerificationEntityNotFoundException(USER_VERIFICATION_ENTITY_NOT_FOUND.getMessage()));
+        if (!passwordEncoder.matches(request.getVerificationCode(), userVerificationEntity.get().getEncryptedCode())) {
+            throw new VerificationCodeIsNotMatchedException(VERIFICATION_CODE_IS_NOT_MATCHED.getMessage());
         }
 
         userEntity.setVerified(true);
@@ -107,11 +99,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, String> performAuthentication(GeneralRequest request) throws UserNotFoundException, UserPasswordIsNotMatchedException {
         if (!userRepository.existsByUsername(request.getUsername())) {
-            throw new UserNotFoundException("User with provided details does not exist!");
+            throw new UserNotFoundException(USER_NOT_FOUND.getMessage());
         }
         UserEntity userEntity = userRepository.getUserEntityByUsername(request.getUsername());
         if (!passwordEncoder.matches(request.getPassword(), userEntity.getPassword())) {
-            throw new UserPasswordIsNotMatchedException("Provided password for user is not matched!");
+            throw new UserPasswordIsNotMatchedException(USER_PASSWORD_IS_NOT_MATCHED.getMessage());
         }
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
@@ -121,7 +113,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void startPasswordResetProcess(ResetPasswordPromptRequest request) throws UserNotFoundException {
         if (!userRepository.existsByUsername(request.getUsername())) {
-            throw new UserNotFoundException("User with provided details does not exist!");
+            throw new UserNotFoundException(USER_NOT_FOUND.getMessage());
         }
         UserEntity userEntity = userRepository.getUserEntityByUsername(request.getUsername());
         PasswordResetEntity passwordResetEntity = new PasswordResetEntity();
@@ -134,24 +126,20 @@ public class UserServiceImpl implements UserService {
         passwordResetRepository.save(passwordResetEntity);
         passwordResetRepository.flush();
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setFrom(javaMailSender.getUsername());
-        mailMessage.setTo(userEntity.getEmail());
-        mailMessage.setText(String.format(environment.getProperty("template.password.reset.prompt"), verificationCode));
-        mailMessage.setSubject("Reset password");
-        javaMailSender.send(mailMessage);
+        mailSender.sendPasswordResetMail(userEntity.getEmail(), verificationCode);
     }
 
     @Override
-    public void finalizePasswordResetProcess(ResetPasswordVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException {
+    public void finalizePasswordResetProcess(ResetPasswordVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException, PasswordResetEntityNotFoundException {
         if (!userRepository.existsByUsername(request.getUsername())) {
-            throw new UserNotFoundException("User with provided details does not exist!");
+            throw new UserNotFoundException(USER_NOT_FOUND.getMessage());
         }
 
         UserEntity userEntity = userRepository.getUserEntityByUsername(request.getUsername());
-        PasswordResetEntity passwordResetEntity = passwordResetRepository.getAllByUser(userEntity).stream().max(Comparator.comparing(PasswordResetEntity::getCreationDate)).get();
-        if (!passwordEncoder.matches(request.getVerificationCode(), passwordResetEntity.getEncryptedCode())) {
-            throw new VerificationCodeIsNotMatchedException("Provided verification code is not matched!");
+        Optional<PasswordResetEntity> passwordResetEntity = passwordResetRepository.getAllByUser(userEntity).stream().max(Comparator.comparing(PasswordResetEntity::getCreationDate));
+        passwordResetEntity.orElseThrow(() -> new PasswordResetEntityNotFoundException(PASSWORD_RESET_ENTITY_NOT_FOUND.getMessage()));
+        if (!passwordEncoder.matches(request.getVerificationCode(), passwordResetEntity.get().getEncryptedCode())) {
+            throw new VerificationCodeIsNotMatchedException(VERIFICATION_CODE_IS_NOT_MATCHED.getMessage());
         }
 
         userEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));

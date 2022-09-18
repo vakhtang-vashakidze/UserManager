@@ -1,10 +1,7 @@
 package ge.vtt.um.controller.advice;
 
 import ge.vtt.um.model.response.GeneralResponse;
-import ge.vtt.um.service.exception.UserAlreadyExistsException;
-import ge.vtt.um.service.exception.UserNotFoundException;
-import ge.vtt.um.service.exception.UserPasswordIsNotMatchedException;
-import ge.vtt.um.service.exception.VerificationCodeIsNotMatchedException;
+import ge.vtt.um.service.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,7 +22,7 @@ public class MainAdvice {
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler({UsernameNotFoundException.class, UserNotFoundException.class})
+    @ExceptionHandler({UsernameNotFoundException.class, UserNotFoundException.class, PasswordResetEntityNotFoundException.class, UserVerificationEntityNotFoundException.class})
     public GeneralResponse handleUserNotFoundException(Exception exception) {
         return GeneralResponse.builder()
                 .message(exception.getMessage())

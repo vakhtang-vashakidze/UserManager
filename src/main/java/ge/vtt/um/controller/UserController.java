@@ -7,10 +7,7 @@ import ge.vtt.um.model.request.ResetPasswordVerifyRequest;
 import ge.vtt.um.model.response.AuthenticationResponse;
 import ge.vtt.um.model.response.GeneralResponse;
 import ge.vtt.um.service.UserService;
-import ge.vtt.um.service.exception.UserAlreadyExistsException;
-import ge.vtt.um.service.exception.UserNotFoundException;
-import ge.vtt.um.service.exception.UserPasswordIsNotMatchedException;
-import ge.vtt.um.service.exception.VerificationCodeIsNotMatchedException;
+import ge.vtt.um.service.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/register/verify")
-    public ResponseEntity<GeneralResponse> verifyRegistration(@Valid @RequestBody RegisterVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException {
+    public ResponseEntity<GeneralResponse> verifyRegistration(@Valid @RequestBody RegisterVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException, UserVerificationEntityNotFoundException {
         log.info("Request body : {}", request);
 
         userService.performRegisterVerification(request);
@@ -79,7 +76,7 @@ public class UserController {
     }
 
     @PostMapping("/password/reset/verify")
-    public ResponseEntity<GeneralResponse> resetPasswordVerification(@Valid @RequestBody ResetPasswordVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException {
+    public ResponseEntity<GeneralResponse> resetPasswordVerification(@Valid @RequestBody ResetPasswordVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException, PasswordResetEntityNotFoundException {
         log.info("Request body : {}", request);
         userService.finalizePasswordResetProcess(request);
 
