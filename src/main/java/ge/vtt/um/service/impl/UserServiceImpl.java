@@ -3,11 +3,14 @@ package ge.vtt.um.service.impl;
 import ge.vtt.um.component.utils.JwtUtils;
 import ge.vtt.um.entity.PasswordResetEntity;
 import ge.vtt.um.entity.UserEntity;
+import ge.vtt.um.entity.UserVerificationEntity;
 import ge.vtt.um.model.request.GeneralRequest;
+import ge.vtt.um.model.request.RegisterVerifyRequest;
 import ge.vtt.um.model.request.ResetPasswordPromptRequest;
 import ge.vtt.um.model.request.ResetPasswordVerifyRequest;
 import ge.vtt.um.repository.PasswordResetRepository;
 import ge.vtt.um.repository.UserRepository;
+import ge.vtt.um.repository.UserVerificationRepository;
 import ge.vtt.um.service.UserService;
 import ge.vtt.um.service.exception.UserAlreadyExistsException;
 import ge.vtt.um.service.exception.UserNotFoundException;
@@ -40,6 +43,8 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordResetRepository passwordResetRepository;
 
+    private final UserVerificationRepository userVerificationRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
@@ -61,6 +66,40 @@ public class UserServiceImpl implements UserService {
         userEntity.setLastname(request.getLastname());
         userEntity.setEmail(request.getEmail());
         userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
+        userEntity.setVerified(false);
+
+        UserVerificationEntity userVerificationEntity = new UserVerificationEntity();
+        userVerificationEntity.setUser(userEntity);
+        userVerificationEntity.setCreationDate(LocalDateTime.now());
+
+        String verificationCode = UUID.randomUUID().toString().substring(0, 5);
+        userVerificationEntity.setEncryptedCode(passwordEncoder.encode(verificationCode));
+
+        userRepository.save(userEntity);
+        userRepository.flush();
+        userVerificationRepository.save(userVerificationEntity);
+        userVerificationRepository.flush();
+
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setFrom(javaMailSender.getUsername());
+        mailMessage.setTo(userEntity.getEmail());
+        mailMessage.setText(String.format(environment.getProperty("template.user.register.verification"), verificationCode));
+        mailMessage.setSubject("User verification");
+        javaMailSender.send(mailMessage);
+    }
+
+    @Override
+    public void performRegisterVerification(RegisterVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException {
+        if (!userRepository.existsByUsername(request.getUsername())) {
+            throw new UserNotFoundException("User with provided details does not exist!");
+        }
+        UserEntity userEntity = userRepository.getUserEntityByUsername(request.getUsername());
+        UserVerificationEntity userVerificationEntity = userVerificationRepository.getAllByUser(userEntity).stream().max(Comparator.comparing(UserVerificationEntity::getCreationDate)).get();
+        if (!passwordEncoder.matches(request.getVerificationCode(), userVerificationEntity.getEncryptedCode())) {
+            throw new VerificationCodeIsNotMatchedException("Provided verification code is not matched!");
+        }
+
+        userEntity.setVerified(true);
         userRepository.save(userEntity);
         userRepository.flush();
     }
@@ -118,8 +157,6 @@ public class UserServiceImpl implements UserService {
         userEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(userEntity);
         userRepository.flush();
-        passwordResetRepository.delete(passwordResetEntity);
-        passwordResetRepository.flush();
     }
 
 }

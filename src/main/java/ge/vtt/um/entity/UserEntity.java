@@ -27,6 +27,11 @@ public class UserEntity {
     @NotBlank
     private String password;
 
+    private boolean verified;
+
     @OneToMany
     private List<PasswordResetEntity> passwordResetEntities;
+
+    @OneToMany
+    private List<UserVerificationEntity> userVerificationEntities;
 }

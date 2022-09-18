@@ -35,6 +35,7 @@ public class UMSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
         http.authorizeRequests().antMatchers("/users/register").permitAll();
+        http.authorizeRequests().antMatchers("/users/register/verify").permitAll();
         http.authorizeRequests().antMatchers("/users/authenticate").permitAll();
         http.authorizeRequests().antMatchers("/users/password/reset/prompt").permitAll();
         http.authorizeRequests().antMatchers("/users/password/reset/verify").permitAll();

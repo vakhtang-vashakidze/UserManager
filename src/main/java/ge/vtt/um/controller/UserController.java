@@ -1,13 +1,14 @@
 package ge.vtt.um.controller;
 
+import ge.vtt.um.model.request.GeneralRequest;
+import ge.vtt.um.model.request.RegisterVerifyRequest;
 import ge.vtt.um.model.request.ResetPasswordPromptRequest;
 import ge.vtt.um.model.request.ResetPasswordVerifyRequest;
-import ge.vtt.um.service.exception.UserAlreadyExistsException;
-import ge.vtt.um.service.exception.UserNotFoundException;
 import ge.vtt.um.model.response.AuthenticationResponse;
 import ge.vtt.um.model.response.GeneralResponse;
-import ge.vtt.um.model.request.GeneralRequest;
 import ge.vtt.um.service.UserService;
+import ge.vtt.um.service.exception.UserAlreadyExistsException;
+import ge.vtt.um.service.exception.UserNotFoundException;
 import ge.vtt.um.service.exception.UserPasswordIsNotMatchedException;
 import ge.vtt.um.service.exception.VerificationCodeIsNotMatchedException;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,18 @@ public class UserController {
                 .build()));
     }
 
+    @PostMapping("/register/verify")
+    public ResponseEntity<GeneralResponse> verifyRegistration(@Valid @RequestBody RegisterVerifyRequest request) throws UserNotFoundException, VerificationCodeIsNotMatchedException {
+        log.info("Request body : {}", request);
+
+        userService.performRegisterVerification(request);
+
+        return ResponseEntity.of(Optional.of(GeneralResponse.builder()
+                .message("User verification completed successfully!")
+                .status(HttpStatus.OK.value())
+                .build()));
+    }
+
     @PostMapping("/authenticate")
     public ResponseEntity<GeneralResponse> authenticate(@Valid @RequestBody GeneralRequest request) throws UserNotFoundException, UserPasswordIsNotMatchedException {
         log.info("Request body : {}", request);
@@ -61,7 +74,7 @@ public class UserController {
 
         return ResponseEntity.of(Optional.of(GeneralResponse.builder()
                 .message("Password reset started successfully!")
-                .status(HttpStatus.CREATED.value())
+                .status(HttpStatus.OK.value())
                 .build()));
     }
 
