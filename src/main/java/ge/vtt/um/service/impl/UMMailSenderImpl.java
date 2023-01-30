@@ -2,17 +2,15 @@ package ge.vtt.um.service.impl;
 
 import ge.vtt.um.service.UMMailSender;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
+import static ge.vtt.um.component.utils.Constants.*;
+
 @Service
 @RequiredArgsConstructor
 public class UMMailSenderImpl implements UMMailSender {
-
-    private final Environment environment;
-
     private final JavaMailSenderImpl mailSender;
 
     @Override
@@ -20,8 +18,8 @@ public class UMMailSenderImpl implements UMMailSender {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom(mailSender.getUsername());
         mailMessage.setTo(email);
-        mailMessage.setText(String.format(environment.getProperty("template.user.register.verification"), verificationCode));
-        mailMessage.setSubject("User verification");
+        mailMessage.setText(String.format(USER_VERIFICATION_EMAIL_TEMPLATE, verificationCode));
+        mailMessage.setSubject(USER_VERIFICATION_EMAIL_SUBJECT);
         mailSender.send(mailMessage);
     }
 
@@ -30,8 +28,8 @@ public class UMMailSenderImpl implements UMMailSender {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom(mailSender.getUsername());
         mailMessage.setTo(email);
-        mailMessage.setText(String.format(environment.getProperty("template.password.reset.prompt"), verificationCode));
-        mailMessage.setSubject("Reset password");
+        mailMessage.setText(String.format(PASSWORD_RESET_PROMPT_EMAIL_TEMPLATE, verificationCode));
+        mailMessage.setSubject(PASSWORD_RESET_EMAIL_SUBJECT);
         mailSender.send(mailMessage);
     }
 }

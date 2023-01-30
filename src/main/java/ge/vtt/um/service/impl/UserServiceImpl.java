@@ -47,8 +47,6 @@ public class UserServiceImpl implements UserService {
 
     private final AuthenticationManager authenticationManager;
 
-    private final JwtUtils jwtUtils;
-
     private final UMMailSender mailSender;
 
     @Override
@@ -107,7 +105,7 @@ public class UserServiceImpl implements UserService {
         }
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-        return jwtUtils.generateJWT(authentication);
+        return JwtUtils.generateJWT(authentication);
     }
 
     @Override

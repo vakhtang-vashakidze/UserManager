@@ -14,6 +14,8 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static ge.vtt.um.service.exception.ExceptionMessages.USER_NOT_FOUND;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if (!userRepository.existsByUsername(username)) {
-            throw new UsernameNotFoundException("User with provided details does not exist!");
+            throw new UsernameNotFoundException(USER_NOT_FOUND.getMessage());
         }
         UserEntity userEntity = userRepository.getUserEntityByUsername(username);
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();

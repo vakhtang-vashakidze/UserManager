@@ -10,7 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -18,11 +17,8 @@ import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 
-@Component
 public class JwtUtils {
-
-
-    public Map<String, String> generateJWT(Authentication authResult) {
+    public static Map<String, String> generateJWT(Authentication authResult) {
         User user = (User) authResult.getPrincipal();
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
         String accessToken = JWT.create()
@@ -49,14 +45,14 @@ public class JwtUtils {
         return tokens;
     }
 
-    public String parseJwt(String authorizationHeader) {
+    public static String parseJwt(String authorizationHeader) {
         if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
             return authorizationHeader.substring(7);
         }
         return null;
     }
 
-    public void verifyToken(String token) {
+    public static void verifyToken(String token) {
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(token);
@@ -68,4 +64,7 @@ public class JwtUtils {
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 
+    private JwtUtils (){
+
+    }
 }
