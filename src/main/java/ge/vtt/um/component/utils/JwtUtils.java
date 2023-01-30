@@ -21,6 +21,7 @@ import static java.util.Arrays.stream;
 @Component
 public class JwtUtils {
 
+
     public Map<String, String> generateJWT(Authentication authResult) {
         User user = (User) authResult.getPrincipal();
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
