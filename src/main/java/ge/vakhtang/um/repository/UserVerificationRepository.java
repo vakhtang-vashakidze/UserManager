@@ -9,6 +9,5 @@ import java.util.List;
 
 @Repository
 public interface UserVerificationRepository extends JpaRepository<UserVerificationEntity, Integer> {
-
     List<UserVerificationEntity> getAllByUser(UserEntity userEntity);
 }

@@ -9,7 +9,5 @@ import java.util.List;
 
 @Repository
 public interface PasswordResetRepository extends JpaRepository<PasswordResetEntity, Integer> {
-
     List<PasswordResetEntity> getAllByUser(UserEntity userEntity);
-
 }
