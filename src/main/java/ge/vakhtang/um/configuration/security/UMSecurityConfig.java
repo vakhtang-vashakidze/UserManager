@@ -33,6 +33,7 @@ public class UMSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
+        http.authorizeRequests().antMatchers("/health/heartbeat").permitAll();
         http.authorizeRequests().antMatchers("/users/register").permitAll();
         http.authorizeRequests().antMatchers("/users/register/verify").permitAll();
         http.authorizeRequests().antMatchers("/users/authenticate").permitAll();
