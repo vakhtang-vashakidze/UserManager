@@ -1,14 +1,16 @@
 package ge.vakhtang.um.entity;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
-@Entity
+@Entity(name = "USERS")
 @Data
+@ToString
 public class UserEntity {
 
     @Id

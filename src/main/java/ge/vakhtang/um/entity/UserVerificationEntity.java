@@ -1,14 +1,16 @@
 package ge.vakhtang.um.entity;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "USER_VERIFICATIONS")
 @Data
+@ToString
 public class UserVerificationEntity {
 
     @Id
