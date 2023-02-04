@@ -36,4 +36,7 @@ public class UserEntity {
 
     @OneToMany
     private List<UserVerificationEntity> userVerificationEntities;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    private RoleEntity role;
 }

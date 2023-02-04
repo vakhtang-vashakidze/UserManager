@@ -2,6 +2,7 @@ package ge.vakhtang.um.service.impl;
 
 import ge.vakhtang.um.component.utils.JwtUtils;
 import ge.vakhtang.um.entity.PasswordResetEntity;
+import ge.vakhtang.um.entity.RoleEntity;
 import ge.vakhtang.um.entity.UserEntity;
 import ge.vakhtang.um.entity.UserVerificationEntity;
 import ge.vakhtang.um.model.request.GeneralRequest;
@@ -9,6 +10,7 @@ import ge.vakhtang.um.model.request.RegisterVerifyRequest;
 import ge.vakhtang.um.model.request.ResetPasswordPromptRequest;
 import ge.vakhtang.um.model.request.ResetPasswordVerifyRequest;
 import ge.vakhtang.um.repository.PasswordResetRepository;
+import ge.vakhtang.um.repository.RoleRepository;
 import ge.vakhtang.um.repository.UserRepository;
 import ge.vakhtang.um.repository.UserVerificationRepository;
 import ge.vakhtang.um.service.UMMailSender;
@@ -29,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static ge.vakhtang.um.component.utils.Constants.BASIC_ROLE;
 import static ge.vakhtang.um.service.exception.ExceptionMessages.*;
 
 @Service
@@ -38,15 +41,11 @@ import static ge.vakhtang.um.service.exception.ExceptionMessages.*;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
     private final PasswordResetRepository passwordResetRepository;
-
     private final UserVerificationRepository userVerificationRepository;
-
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-
     private final AuthenticationManager authenticationManager;
-
     private final UMMailSender mailSender;
 
     @Override
@@ -61,6 +60,8 @@ public class UserServiceImpl implements UserService {
         userEntity.setEmail(request.getEmail());
         userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
         userEntity.setVerified(false);
+        RoleEntity roleEntity = roleRepository.getByName(BASIC_ROLE);
+        userEntity.setRole(roleEntity);
 
         UserVerificationEntity userVerificationEntity = new UserVerificationEntity();
         userVerificationEntity.setUser(userEntity);
